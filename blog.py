@@ -23,7 +23,8 @@ def index():
     return template(
         'index',
         articles=articles,
-        next='/?{}'.format(urlencode({'limit': limit, 'offset': offset+1}))
+        next='/?{}'.format(urlencode({'limit': limit, 'offset': offset+1})),
+        username=session['username'].split('@')[0],
     )
 
 

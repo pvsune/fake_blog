@@ -75,6 +75,7 @@ class Pocket(object):
         except requests.exceptions.HTTPError:
             raise HTTPError(status=400, body='Pocket authorization failed.')
         session['access_token'] = res['access_token']
+        session['username'] = res['username']
         session.save()
         return
 

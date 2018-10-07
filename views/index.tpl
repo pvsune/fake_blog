@@ -8,7 +8,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Clean Blog - Start Bootstrap Theme</title>
+    <title>Fake Blog - Start Bootstrap Theme</title>
 
     <!-- Bootstrap core CSS -->
     <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -28,7 +28,7 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
       <div class="container">
-        <a class="navbar-brand" href="index.html">Start Bootstrap</a>
+        <a class="navbar-brand" href="index.html">{{ username.upper() }}</a>
         <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
           Menu
           <i class="fas fa-bars"></i>
@@ -59,8 +59,8 @@
         <div class="row">
           <div class="col-lg-8 col-md-10 mx-auto">
             <div class="site-heading">
-              <h1>Clean Blog</h1>
-              <span class="subheading">A Blog Theme by Start Bootstrap</span>
+              <h1>Fake Blog</h1>
+              <span class="subheading">A Blog site using items saved in Pocket</span>
             </div>
           </div>
         </div>
@@ -77,9 +77,15 @@
               <h2 class="post-title">{{ item['given_title'] or item['resolved_title'] }}</h2>
               <h3 class="post-subtitle">{{ item['excerpt'] }}</h3>
             </a>
+            % authors = ', '.join([v['name'] for k, v in item.get('authors', {}).items()])
+            % if authors:
             <p class="post-meta">Posted by
-              <a href="#">{{ ', '.join([v['name'] for k, v in item.get('authors', {}).items()] or ['Unknown']) }}</a>
-              in {{ item.get('tags') }}</p>
+              <a href="#">{{ authors }}</a>
+              % tags = ', '.join(['#{}'.format(k) for k in item.get('tags', {}).keys()])
+              % if tags:
+              in {{ tags }}</p>
+              % end
+            % end
           </div>
           <hr>
         % end
