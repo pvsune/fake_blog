@@ -14,8 +14,8 @@ def index():
         request.app.config['blog.pocket.consumer_key'],
         request.app.config['blog.pocket.redirect_uri'],
     )
-    access_token = pocket.get_access_token(session)
-    return template('index')
+    articles = pocket.get(session)
+    return template('index', articles=articles)
 
 
 @route('/oauth/cb')

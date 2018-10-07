@@ -71,3 +71,18 @@ class Pocket(object):
         session['access_token'] = res['access_token']
         session.save()
         return
+
+    def get(self, session):
+        access_token = self.get_access_token(session)
+        res = self.request(
+            'POST',
+            'v3/get',
+            json={
+                'consumer_key': self.consumer_key,
+                'access_token': access_token,
+                'count': 5,
+                'detailType': 'complete',
+                'contentType': 'article',
+            }
+        )
+        return (v for k, v in res['list'].items())
