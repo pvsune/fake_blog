@@ -1,6 +1,7 @@
 import logging
 
 import requests
+from bottle import redirect
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -35,3 +36,22 @@ class Pocket(object):
             )
             raise HTTPError(status=500, body='Internal Server Error')
         return res
+
+    def get_access_token(self, session):
+        if session.get('access_token'):
+            return session['access_token']
+        # Get request token.
+        res = self.request(
+            method='POST',
+            path='v3/oauth/request',
+            json={
+                'consumer_key': self.consumer_key,
+                'redirect_uri': self.redirect_uri,
+            },
+        )
+        session['request_token'] = res['code']
+        session.save()
+        # TODO: Use urlparse.
+        return redirect('{}?request_token={}&redirect_uri={}'.format(
+            self.AUTHORIZE_URL, res['code'], self.redirect_uri
+        ))

@@ -11,47 +11,13 @@ from bottle import (
 from helpers.pocket import Pocket
 
 
-def get_access_token(pocket):
-    session = request.environ.get('beaker.session')
-    if session.get('access_token'):
-        return session['access_token']
-    # Get request token.
-    res = pocket.request(
-        method='POST',
-        path='v3/oauth/request',
-        json={
-            'consumer_key': pocket.consumer_key,
-            'redirect_uri': pocket.redirect_uri,
-        },
-    )
-    session['request_token'] = res['code']
-    session.save()
-    # TODO: Use urlparse.
-    return redirect('{}?request_token={}&redirect_uri={}'.format(
-        pocket.AUTHORIZE_URL, res['code'], pocket.redirect_uri
-    ))
-
-
-@route('/')
-def index():
+def authorize(session):
     pocket = Pocket(
         # TODO: Put to config.
         '74628-e4bcb63cf0c35403d8e8c86b',
         'http://localhost:8080/oauth/cb',
     )
-    access_token = get_access_token(pocket)
-    return template('index')
-
-
-@route('/oauth/cb')
-def oauth_cb():
-    session = request.environ.get('beaker.session')
-    pocket = Pocket(
-        # TODO: Put to config.
-        '74628-e4bcb63cf0c35403d8e8c86b',
-        'http://localhost:8080/oauth/cb',
-    )
-    res = pocket.request(
+    return pocket.request(
         'POST',
         'v3/oauth/authorize',
         json={
@@ -59,6 +25,24 @@ def oauth_cb():
             'code': session['request_token']
         }
     )
+
+
+@route('/')
+def index():
+    session = request.environ.get('beaker.session')
+    pocket = Pocket(
+        # TODO: Put to config.
+        '74628-e4bcb63cf0c35403d8e8c86b',
+        'http://localhost:8080/oauth/cb',
+    )
+    access_token = pocket.get_access_token(session)
+    return template('index')
+
+
+@route('/oauth/cb')
+def oauth_cb():
+    session = request.environ.get('beaker.session')
+    res = authorize(session)
     session['access_token'] = res['access_token']
     session.save()
     return redirect('/')
