@@ -31,10 +31,10 @@ class Pocket(object):
             res = r.json()
         except requests.exceptions.HTTPError:
             # Error details are returned in headers (X-Error, X-Error-Code).
-            logging.exception(
+            logging.error(
                 'Failed requesting POCKET url=%s: %s', path, r.headers
             )
-            raise HTTPError(status=500, body='Internal Server Error')
+            raise
         return res
 
     def get_access_token(self, session):
