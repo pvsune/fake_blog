@@ -72,7 +72,7 @@ class Pocket(object):
         session.save()
         return
 
-    def get(self, session):
+    def get(self, session, limit, offset):
         access_token = self.get_access_token(session)
         res = self.request(
             'POST',
@@ -80,9 +80,13 @@ class Pocket(object):
             json={
                 'consumer_key': self.consumer_key,
                 'access_token': access_token,
-                'count': 5,
+                'count': limit,
+                'offset': limit*offset,
                 'detailType': 'complete',
                 'contentType': 'article',
             }
         )
+        if not res['list']:
+            # Pocket returns "list" key as list when empty and dict if isn't.
+            return []
         return (v for k, v in res['list'].items())

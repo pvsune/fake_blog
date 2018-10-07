@@ -16,8 +16,14 @@ def index():
         request.app.config['blog.pocket.consumer_key'],
         request.app.config['blog.pocket.redirect_uri'],
     )
-    articles = pocket.get(session)
-    return template('index', articles=articles)
+    limit = int(request.query.get('limit', 5))
+    offset = int(request.query.get('offset', 0))
+    articles = pocket.get(session, limit, offset)
+    return template(
+        'index',
+        articles=articles,
+        next='/?limit={}&offset={}'.format(limit, offset+1)
+    )
 
 
 @route('/oauth/cb')
