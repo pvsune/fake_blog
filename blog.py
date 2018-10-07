@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+from urllib.parse import urlencode
 
 import requests
 from beaker.middleware import SessionMiddleware
@@ -22,7 +23,7 @@ def index():
     return template(
         'index',
         articles=articles,
-        next='/?limit={}&offset={}'.format(limit, offset+1)
+        next='/?{}'.format(urlencode({'limit': limit, 'offset': offset+1}))
     )
 
 

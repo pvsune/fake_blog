@@ -1,4 +1,5 @@
 import logging
+from urllib.parse import urlencode
 
 import requests
 from bottle import redirect, HTTPError
@@ -51,10 +52,15 @@ class Pocket(object):
         )
         session['request_token'] = res['code']
         session.save()
-        # TODO: Use urlparse.
-        return redirect('{}?request_token={}&redirect_uri={}'.format(
-            self.AUTHORIZE_URL, res['code'], self.redirect_uri
-        ))
+        return redirect(
+            '{base_url}?{query_params}'.format(
+                base_url=self.AUTHORIZE_URL,
+                query_params=urlencode({
+                    'request_token': res['code'],
+                    'redirect_uri': self.redirect_uri
+                }),
+            )
+        )
 
     def authorize(self, session):
         try:
