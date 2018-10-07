@@ -1,12 +1,8 @@
 import logging
-import os
 
 import requests
 from beaker.middleware import SessionMiddleware
-from bottle import (
-    route, run, template, static_file, HTTPError, redirect, request,
-    app as bottle_app
-)
+from bottle import route, run, template, static_file, redirect, request, app
 
 from helpers.pocket import Pocket
 
@@ -15,9 +11,8 @@ from helpers.pocket import Pocket
 def index():
     session = request.environ.get('beaker.session')
     pocket = Pocket(
-        # TODO: Put to config.
-        '74628-e4bcb63cf0c35403d8e8c86b',
-        'http://localhost:8080/oauth/cb',
+        request.app.config['blog.pocket.consumer_key'],
+        request.app.config['blog.pocket.redirect_uri'],
     )
     access_token = pocket.get_access_token(session)
     return template('index')
@@ -27,9 +22,8 @@ def index():
 def oauth_cb():
     session = request.environ.get('beaker.session')
     pocket = Pocket(
-        # TODO: Put to config.
-        '74628-e4bcb63cf0c35403d8e8c86b',
-        'http://localhost:8080/oauth/cb',
+        request.app.config['blog.pocket.consumer_key'],
+        request.app.config['blog.pocket.redirect_uri'],
     )
     pocket.authorize(session)
     return redirect('/')
@@ -41,11 +35,25 @@ def send_static(filename):
 
 
 if __name__ == '__main__':
+    # WANT: Get from CLI args.
+    HOST = 'localhost'
+    PORT = 8080
+
     logging.basicConfig(level=logging.DEBUG)
-    app = SessionMiddleware(bottle_app(), {
+    app = app()
+
+    # Set configs.
+    app.config['blog.pocket.consumer_key'] = '74628-e4bcb63cf0c35403d8e8c86b'
+    app.config['blog.pocket.redirect_uri'] = (
+        'http://{}:{}/oauth/cb'.format(HOST, PORT)
+    )
+
+    # Setup session.
+    app = SessionMiddleware(app, {
         'session.type': 'file',
         'session.cookie_expires': 300,
         'session.data_dir': './data',
-        'session.auto': True
+        'session.auto': True,
     })
-    run(app=app, host='localhost', port=8080, reloader=True)
+
+    run(app=app, host=HOST, port=PORT, reloader=True)
