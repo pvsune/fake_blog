@@ -73,8 +73,8 @@
         <div class="col-lg-8 col-md-10 mx-auto">
         % for item in articles:
           <div class="post-preview">
-            <a href="{{ item['given_url'] }}">
-              <h2 class="post-title">{{ item['given_title'] }}</h2>
+            <a href="{{ item['resolved_url'] }}">
+              <h2 class="post-title">{{ item['given_title'] or item['resolved_title'] }}</h2>
               <h3 class="post-subtitle">{{ item['excerpt'] }}</h3>
             </a>
             <p class="post-meta">Posted by
