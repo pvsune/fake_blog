@@ -1,7 +1,7 @@
 import logging
 
 import requests
-from bottle import redirect
+from bottle import redirect, HTTPError
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -57,14 +57,17 @@ class Pocket(object):
         ))
 
     def authorize(self, session):
-        res = self.request(
-            'POST',
-            'v3/oauth/authorize',
-            json={
-                'consumer_key': self.consumer_key,
-                'code': session['request_token']
-            }
-        )
+        try:
+            res = self.request(
+                'POST',
+                'v3/oauth/authorize',
+                json={
+                    'consumer_key': self.consumer_key,
+                    'code': session['request_token']
+                }
+            )
+        except requests.exceptions.HTTPError:
+            raise HTTPError(status=400, body='Pocket authorization failed.')
         session['access_token'] = res['access_token']
         session.save()
         return
