@@ -1,4 +1,6 @@
+import json
 import logging
+import os
 
 import requests
 from beaker.middleware import SessionMiddleware
@@ -35,25 +37,23 @@ def send_static(filename):
 
 
 if __name__ == '__main__':
-    # WANT: Get from CLI args.
-    HOST = 'localhost'
-    PORT = 8080
+    HOST = os.getenv('HOST', 'localhost')
+    PORT = os.getenv('PORT', 8080)
+    CONSUMER_KEY = os.getenv('CONSUMER_KEY', '')
 
     logging.basicConfig(level=logging.DEBUG)
     app = app()
 
     # Set configs.
-    app.config['blog.pocket.consumer_key'] = '74628-e4bcb63cf0c35403d8e8c86b'
-    app.config['blog.pocket.redirect_uri'] = (
-        'http://{}:{}/oauth/cb'.format(HOST, PORT)
+    with open('config.json') as fp:
+        app.config.load_dict(json.load(fp))
+    app.config.update(
+        'blog.pocket',
+        consumer_key=CONSUMER_KEY,
+        redirect_uri=app.config['blog.pocket.redirect_uri'].format(HOST, PORT)
     )
 
     # Setup session.
-    app = SessionMiddleware(app, {
-        'session.type': 'file',
-        'session.cookie_expires': 300,
-        'session.data_dir': './data',
-        'session.auto': True,
-    })
+    app = SessionMiddleware(app, app.config)
 
     run(app=app, host=HOST, port=PORT, reloader=True)

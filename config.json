@@ -1,0 +1,14 @@
+{
+    "blog": {
+        "pocket": {
+            "consumer_key": "",
+            "redirect_uri": "http://{}:{}/oauth/cb"
+        }
+    },
+    "session": {
+        "type": "file",
+        "cookie_expires": 300,
+        "data_dir": "./data",
+        "auto": true
+    }
+}
