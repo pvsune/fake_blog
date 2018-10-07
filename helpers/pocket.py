@@ -55,3 +55,16 @@ class Pocket(object):
         return redirect('{}?request_token={}&redirect_uri={}'.format(
             self.AUTHORIZE_URL, res['code'], self.redirect_uri
         ))
+
+    def authorize(self, session):
+        res = self.request(
+            'POST',
+            'v3/oauth/authorize',
+            json={
+                'consumer_key': self.consumer_key,
+                'code': session['request_token']
+            }
+        )
+        session['access_token'] = res['access_token']
+        session.save()
+        return

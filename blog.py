@@ -11,22 +11,6 @@ from bottle import (
 from helpers.pocket import Pocket
 
 
-def authorize(session):
-    pocket = Pocket(
-        # TODO: Put to config.
-        '74628-e4bcb63cf0c35403d8e8c86b',
-        'http://localhost:8080/oauth/cb',
-    )
-    return pocket.request(
-        'POST',
-        'v3/oauth/authorize',
-        json={
-            'consumer_key': pocket.consumer_key,
-            'code': session['request_token']
-        }
-    )
-
-
 @route('/')
 def index():
     session = request.environ.get('beaker.session')
@@ -42,9 +26,12 @@ def index():
 @route('/oauth/cb')
 def oauth_cb():
     session = request.environ.get('beaker.session')
-    res = authorize(session)
-    session['access_token'] = res['access_token']
-    session.save()
+    pocket = Pocket(
+        # TODO: Put to config.
+        '74628-e4bcb63cf0c35403d8e8c86b',
+        'http://localhost:8080/oauth/cb',
+    )
+    pocket.authorize(session)
     return redirect('/')
 
 
