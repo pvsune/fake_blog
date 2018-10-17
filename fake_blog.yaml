@@ -19,6 +19,8 @@ spec:
         env:
         - name: CONSUMER_KEY
           value: your-consumer-key-here
+        - name: REDIRECT_HOST
+          value: fakeblog.me
 ---
 apiVersion: v1
 kind: Service
@@ -26,9 +28,23 @@ metadata:
   name: fake-blog
 spec:
   ports:
-  - port: 8080
+  - name: http
+    port: 8080
     protocol: TCP
     targetPort: 8080
   selector:
     run: fake-blog
   type: NodePort
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: fake-blog
+spec:
+  rules:
+  - host: fakeblog.me
+    http:
+      paths:
+      - backend:
+          serviceName: fake-blog
+          servicePort: http
