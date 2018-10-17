@@ -48,6 +48,7 @@ if __name__ == '__main__':
     HOST = os.getenv('HOST', 'localhost')
     PORT = os.getenv('PORT', 8080)
     CONSUMER_KEY = os.getenv('CONSUMER_KEY', '')
+    REDIRECT_HOST = os.getenv('REDIRECT_HOST', '')  # Use with Kubernetes.
 
     logging.basicConfig(level=logging.DEBUG)
     app = app()
@@ -58,7 +59,9 @@ if __name__ == '__main__':
     app.config.update(
         'blog.pocket',
         consumer_key=CONSUMER_KEY,
-        redirect_uri=app.config['blog.pocket.redirect_uri'].format(HOST, PORT)
+        redirect_uri=app.config['blog.pocket.redirect_uri'].format(
+            REDIRECT_HOST, 80 if REDIRECT_HOST else HOST, PORT
+        )
     )
 
     # Setup session.
