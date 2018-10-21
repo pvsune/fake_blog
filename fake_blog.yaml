@@ -19,6 +19,7 @@ spec:
         env:
         - name: CONSUMER_KEY
           value: your-consumer-key-here
+        # Add record in "/etc/hosts" fakeblog.me pointing to "$ minikube ip".
         - name: REDIRECT_HOST
           value: fakeblog.me
 ---
